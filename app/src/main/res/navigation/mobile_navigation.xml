@@ -7,19 +7,25 @@
 
     <fragment
         android:id="@+id/nav_home"
-        android:name="com.familyHomeConnect.ui.home.HomeFragment"
-        android:label="@string/menu_home"
+        android:name="com.familyhomeconnect.ui.home.HomeFragment"
+        android:label="Mój dom"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/nav_gallery"
-        android:name="com.familyHomeConnect.ui.gallery.GalleryFragment"
+        android:name="com.familyhomeconnect.ui.gallery.GalleryFragment"
         android:label="@string/menu_gallery"
         tools:layout="@layout/fragment_gallery" />
 
     <fragment
         android:id="@+id/nav_slideshow"
-        android:name="com.familyHomeConnect.ui.slideshow.SlideshowFragment"
+        android:name="com.familyhomeconnect.ui.slideshow.SlideshowFragment"
         android:label="@string/menu_slideshow"
         tools:layout="@layout/fragment_slideshow" />
+
+    <fragment
+        android:id="@+id/addTaskFragment"
+        android:name="com.familyhomeconnect.ui.addtask.AddTaskFragment"
+        android:label="Dodaj zadanie"
+        tools:layout="@layout/fragment_add_task" />
 </navigation>

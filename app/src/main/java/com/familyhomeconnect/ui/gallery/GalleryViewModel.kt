@@ -1,4 +1,4 @@
-package com.familyHomeConnect.ui.gallery
+package com.familyhomeconnect.ui.gallery
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

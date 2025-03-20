@@ -1,4 +1,4 @@
-package com.familyHomeConnect
+package com.familyhomeconnect
 
 import org.junit.Test
 
