@@ -1,13 +1,15 @@
 <resources>
     <string name="app_name">Family Home Connect</string>
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="navigation_drawer_open">Otwórz szufladę nawigacyjną</string>
+    <string name="navigation_drawer_close">Zamknij szufladę nawigacyjną</string>
     <string name="nav_header_title">Android Studio</string>
     <string name="nav_header_subtitle">android.studio@android.com</string>
-    <string name="nav_header_desc">Navigation header</string>
-    <string name="action_settings">Settings</string>
+    <string name="nav_header_desc">Nagłówek nawigacji</string>
+    <string name="action_settings">Ustawienia</string>
     <string name="default_web_client_id">287649088794-feq6tmeq21upq3obq7eovd2786gf04ks.apps.googleusercontent.com</string>
-    <string name="menu_home">Home</string>
-    <string name="menu_gallery">Gallery</string>
-    <string name="menu_slideshow">Slideshow</string>
+    <string name="menu_home">Strona główna</string>
+    <string name="menu_gallery">Galeria</string>
+    <string name="menu_slideshow">Pokaz slajdów</string>
+    <string name="action_login">Zaloguj się</string>
+    <string name="action_logout">Wyloguj się</string>
 </resources>

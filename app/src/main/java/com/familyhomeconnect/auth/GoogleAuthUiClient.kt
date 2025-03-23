@@ -20,9 +20,11 @@ class GoogleAuthUiClient(
 ) {
     private val firebaseAuth = FirebaseAuth.getInstance()
 
-    fun isSignedIn(): Boolean = firebaseAuth.currentUser != null
+    fun getCurrentUser() = firebaseAuth.currentUser
 
-    fun getSignedInUserEmail(): String? = firebaseAuth.currentUser?.email
+    fun isSignedIn(): Boolean = getCurrentUser() != null
+
+    fun getSignedInUserEmail(): String? = getCurrentUser()?.email
 
     fun signIn(
         onSuccess: (String?) -> Unit,
@@ -59,7 +61,7 @@ class GoogleAuthUiClient(
         firebaseAuth.signInWithCredential(credential)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    onSuccess(firebaseAuth.currentUser?.email)
+                    onSuccess(getCurrentUser()?.email)
                 } else {
                     Log.w("GoogleAuthUiClient", "Firebase auth failed", task.exception)
                     onError("Firebase auth failed: ${task.exception?.localizedMessage}")
