@@ -1,25 +1,17 @@
+package com.familyhomeconnect.ui.home
+
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.firebase.auth.FirebaseAuth
+import com.familyhomeconnect.model.House
+import com.familyhomeconnect.repository.HomeRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class HomeViewModel : ViewModel() {
+@HiltViewModel
+class HomeViewModel @Inject constructor(
+    private val homeRepository: HomeRepository
+) : ViewModel() {
 
-    private val auth = FirebaseAuth.getInstance()
-
-    private val _isLoggedIn = MutableLiveData<Boolean>()
-    val isLoggedIn: LiveData<Boolean> = _isLoggedIn
-
-    private val authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
-        _isLoggedIn.value = firebaseAuth.currentUser != null
-    }
-
-    init {
-        auth.addAuthStateListener(authStateListener)
-    }
-
-    override fun onCleared() {
-        auth.removeAuthStateListener(authStateListener)
-        super.onCleared()
-    }
+    // LiveData przechowujące informacje o domu
+    val houseInfo: LiveData<House> = homeRepository.houseInfo
 }

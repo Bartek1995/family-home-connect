@@ -12,13 +12,14 @@ import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class GoogleAuthUiClient(
+class GoogleAuthUiClient @Inject constructor(
     private val context: Context,
     private val credentialManager: CredentialManager,
-    private val webClientId: String
+    private val webClientId: String,
+    private val firebaseAuth: FirebaseAuth
 ) {
-    private val firebaseAuth = FirebaseAuth.getInstance()
 
     fun getCurrentUser() = firebaseAuth.currentUser
 

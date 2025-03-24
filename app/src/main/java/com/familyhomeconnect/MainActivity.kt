@@ -5,8 +5,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.credentials.CredentialManager
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -14,33 +14,25 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.bumptech.glide.Glide
-import com.familyhomeconnect.auth.GoogleAuthUiClient
 import com.familyhomeconnect.databinding.ActivityMainBinding
+import com.familyhomeconnect.viewmodel.AuthViewModel
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
-    private lateinit var googleAuthUiClient: GoogleAuthUiClient
 
-    val authClient: GoogleAuthUiClient
-        get() = googleAuthUiClient
-    private lateinit var authStateListener: FirebaseAuth.AuthStateListener
+    private val authViewModel: AuthViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         setSupportActionBar(binding.appBarMain.toolbar)
-
-        // Nasłuchiwacz zmian stanu autoryzacji, który wywołuje updateUserDrawerHeader
-        authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
-            updateUserDrawerHeader()
-        }
 
         binding.appBarMain.fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -59,41 +51,10 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        googleAuthUiClient = GoogleAuthUiClient(
-            context = this,
-            credentialManager = CredentialManager.create(this),
-            webClientId = getString(R.string.default_web_client_id)
-        )
-
-        if (!googleAuthUiClient.isSignedIn()) {
-            googleAuthUiClient.signIn(
-                onSuccess = { email ->
-                    Snackbar.make(binding.root, "Zalogowano jako: $email", Snackbar.LENGTH_LONG).show()
-                    invalidateOptionsMenu()
-                    updateUserDrawerHeader()
-                },
-                onError = { error ->
-                    Snackbar.make(binding.root, error, Snackbar.LENGTH_LONG).show()
-                }
-            )
-        } else {
-            Snackbar.make(
-                binding.root,
-                "Już zalogowano jako: ${googleAuthUiClient.getSignedInUserEmail()}",
-                Snackbar.LENGTH_LONG
-            ).show()
-            updateUserDrawerHeader()
+        // Obserwuj stan użytkownika
+        authViewModel.currentUser.observe(this) { user ->
+            updateUserDrawerHeader(user)
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        FirebaseAuth.getInstance().addAuthStateListener(authStateListener)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        FirebaseAuth.getInstance().removeAuthStateListener(authStateListener)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -103,16 +64,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.action_settings -> {
-                // obsługa kliknięcia ustawień
-                true
-            }
+            R.id.action_settings -> true
             R.id.action_login -> {
-                googleAuthUiClient.signIn(
+                authViewModel.signIn(
                     onSuccess = { email ->
                         Snackbar.make(binding.root, "Zalogowano jako: $email", Snackbar.LENGTH_LONG).show()
-                        invalidateOptionsMenu()
-                        updateUserDrawerHeader()
                     },
                     onError = { error ->
                         Snackbar.make(binding.root, error, Snackbar.LENGTH_LONG).show()
@@ -121,10 +77,8 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.action_logout -> {
-                googleAuthUiClient.signOut()
+                authViewModel.signOut()
                 Snackbar.make(binding.root, "Wylogowano", Snackbar.LENGTH_LONG).show()
-                invalidateOptionsMenu()
-                updateUserDrawerHeader()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -132,7 +86,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        val isLoggedIn = googleAuthUiClient.isSignedIn()
+        val isLoggedIn = authViewModel.currentUser.value != null
         menu.findItem(R.id.action_login)?.isVisible = !isLoggedIn
         menu.findItem(R.id.action_logout)?.isVisible = isLoggedIn
         return super.onPrepareOptionsMenu(menu)
@@ -143,18 +97,16 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
-    private fun updateUserDrawerHeader() {
+    private fun updateUserDrawerHeader(user: com.google.firebase.auth.FirebaseUser?) {
         val navView: NavigationView = binding.navView
         val headerView = navView.getHeaderView(0)
         val emailTextView = headerView.findViewById<TextView>(R.id.textViewEmail)
         val fullNameTextView = headerView.findViewById<TextView>(R.id.textViewFullName)
         val imageView = headerView.findViewById<ImageView>(R.id.imageView)
 
-        val currentUser = googleAuthUiClient.getCurrentUser()
-        emailTextView.text = currentUser?.email ?: "Nie zalogowano"
-        fullNameTextView.text = currentUser?.displayName ?: ""
-
-        val photoUrl = currentUser?.photoUrl
+        emailTextView.text = user?.email ?: "Nie zalogowano"
+        fullNameTextView.text = user?.displayName ?: ""
+        val photoUrl = user?.photoUrl
         if (photoUrl != null) {
             Glide.with(this)
                 .load(photoUrl)
